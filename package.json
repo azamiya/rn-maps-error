@@ -1,0 +1,76 @@
+{
+  "name": "MobileApp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "android": "node_modules/.bin/react-native run-android",
+    "ios": "node_modules/.bin/react-native run-ios",
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watchAll",
+    "test:e2e": "detox test --reuse -c ios.sim.debug",
+    "test:e2e:build": "detox build",
+    "lint": "node_modules/.bin/eslint src",
+    "flow": "node_modules/.bin/flow",
+    "flow:stop": "node_modules/.bin/flow stop",
+    "precommit": "yarn run flow && node_modules/.bin/lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "yarn run lint",
+      "git add",
+      "jest --bail --findRelatedTests"
+    ]
+  },
+  "detox": {
+    "test-runner": "jest",
+    "runner-config": "e2e/config.json",
+    "configurations": {
+      "ios.sim.debug": {
+        "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/MobileApp.app",
+        "build": "xcodebuild -project ios/MobileApp.xcodeproj -scheme MobileApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build",
+        "type": "ios.simulator",
+        "name": "iPhone 6"
+      }
+    }
+  },
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "native-base": "^2.4.2",
+    "react": "16.3.1",
+    "react-native": "0.55.3",
+    "react-native-form-validator": "^0.2.0",
+    "react-native-maps": "^0.21.0",
+    "react-native-navigation": "^1.1.452",
+    "styled-components": "^3.2.6"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.2.3",
+    "babel-jest": "22.4.3",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-react-native": "4.0.0",
+    "detox": "^7.3.5",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-to-json": "^3.3.3",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-import-resolver-babel-module": "^4.0.0",
+    "eslint-plugin-flowtype": "^2.46.3",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
+    "flow-bin": "^0.67.1",
+    "husky": "^0.14.3",
+    "jest": "22.4.3",
+    "jest-cli": "^22.4.3",
+    "lint-staged": "^7.0.5",
+    "react-dom": "^16.3.2",
+    "react-test-renderer": "16.3.1"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}

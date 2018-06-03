@@ -1,0 +1,67 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  before_all do
+    setup_circle_ci
+    create_keychain(
+    name: "default_keychain",
+    default_keychain: true,
+    unlock: true,
+    password: "default"
+    )
+    import_certificate(
+      keychain_name: "default_keychain",
+      keychain_password: "default",
+      certificate_path: 'Certificates.p12',
+      certificate_password: ENV["CERTIFICATE_PASSWORD"] || "default"
+    )
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    scan(scheme: "MobileApp")
+  end
+
+  desc "Submit a new Beta Build to HockeyApp"
+  desc "This will also make sure the profile is up to date"
+  lane :beta do
+    # match(type: "appstore") # more information: https://codesigning.guide
+    build_number = ENV["CIRCLE_BUILD_NUM"]
+
+    increment_build_number(
+      build_number: build_number
+      )
+
+    gym(
+      export_method: "ad-hoc",
+      scheme: "MobileAppRelease",
+      clean: true
+    )
+
+    changelog_notes = changelog_from_git_commits(
+      include_merges: true,
+      commits_count: 1,
+      pretty: '%b %n%n %s (%h)'
+    )
+
+    hockey(
+      api_token: "bab852be44444f4b869b920ca69d553b",
+      notes: changelog_notes +" CircleCI build " + ENV["CIRCLE_BUILD_NUM"],
+      commit_sha: ENV["CIRCLE_SHA1"],
+      build_server_url: ENV["CIRCLE_BUILD_URL"],
+      repository_url: ENV["CIRCLE_REPOSITORY_URL"],
+      notify: "1"
+    )
+  end
+end
